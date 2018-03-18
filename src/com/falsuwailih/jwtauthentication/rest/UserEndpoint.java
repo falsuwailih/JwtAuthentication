@@ -1,9 +1,11 @@
 package com.falsuwailih.jwtauthentication.rest;
 
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.TextCodec;
 
+import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,6 +14,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.DatatypeConverter;
+
+import com.falsuwailih.jwtauthentication.util.KeyGenerator;
 
 import java.security.Key;
 import java.time.LocalDateTime;
@@ -39,10 +44,6 @@ public class UserEndpoint {
 	@Context
 	private UriInfo uriInfo;
 
-	/*
-	 * @Inject private Logger logger;
-	 */
-
 	@PersistenceContext
 	private EntityManager em;
 
@@ -56,8 +57,9 @@ public class UserEndpoint {
 	public Response authenticateUser(@FormParam("login") String login, @FormParam("password") String password) {
 
 		try {
+			System.out.println("Hello");
 
-			// logger.info("#### login/password : " + login + "/" + password);
+			System.out.println("#### login/password : " + login + "/" + password);
 
 			// Authenticate the user using the credentials provided
 			authenticate(login, password);
@@ -78,20 +80,16 @@ public class UserEndpoint {
 	}
 
 	private String issueToken(String login) {
-        String jwtToken = Jwts.builder()
-                .setSubject(login)
-                .setIssuer(uriInfo.getAbsolutePath().toString())
-                .setIssuedAt(new Date())
-                .setExpiration(toDate(LocalDateTime.now().plusMinutes(15L)))
-                .signWith(
-    				    SignatureAlgorithm.HS256,
-    				    TextCodec.BASE64.decode("Yn2kjibddFAWtnPJ2AFlL8WXmohJMCvigQggaEypa5E=")
-    				  )
-                .compact();
-        //logger.info("#### generating token for a key : " + jwtToken + " - " + key);
-        return jwtToken;
 
-    }
+		System.out.println("This is issueToken");
+		Key key = KeyGenerator.generateKey();
+		String jwtToken = Jwts.builder().setSubject(login).setIssuer(uriInfo.getAbsolutePath().toString())
+				.setIssuedAt(new Date()).setExpiration(toDate(LocalDateTime.now().plusMinutes(15L)))
+				.signWith(SignatureAlgorithm.HS512, key)
+				.compact();
+		System.out.println("#### generating token for a key : " + jwtToken);
+		return jwtToken;
+	}
 
 	/*
 	 * @POST public Response create(User user) { em.persist(user); return

@@ -1,9 +1,10 @@
 package com.falsuwailih.jwtauthentication.rest;
 
-import io.jsonwebtoken.Jwts;
+import java.io.IOException;
+import java.security.Key;
 
 import javax.annotation.Priority;
-import javax.inject.Inject;
+import javax.crypto.spec.SecretKeySpec;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -12,9 +13,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
+import com.falsuwailih.jwtauthentication.util.KeyGenerator;
 
-import java.io.IOException;
-import java.security.Key;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 
 /**
  * @author Antonio Goncalves http://www.antoniogoncalves.org --
@@ -57,9 +59,10 @@ public class JWTTokenNeededFilter implements ContainerRequestFilter {
 
 			// Validate the token
 
-			/*Key key = keyGenerator.generateKey();
-			Jwts.parser().setSigningKey(key).parseClaimsJws(token);
-			System.out.println("#### valid token : " + token);*/
+			Key key = KeyGenerator.generateKey();
+			Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody();
+			System.out.println("#### valid token : " + token);
+			System.out.println(claims.getSubject());
 
 		} catch (Exception e) {
 			System.out.println("#### invalid token : " + token);
