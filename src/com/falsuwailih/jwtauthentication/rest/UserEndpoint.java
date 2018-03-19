@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.DatatypeConverter;
 
+import com.falsuwailih.jwtauthentication.util.JsonLogin;
 import com.falsuwailih.jwtauthentication.util.KeyGenerator;
 
 import java.security.Key;
@@ -53,10 +54,12 @@ public class UserEndpoint {
 
 	@POST
 	@Path("/login")
-	@Consumes(APPLICATION_FORM_URLENCODED)
-	public Response authenticateUser(@FormParam("login") String login, @FormParam("password") String password) {
+	@Consumes(APPLICATION_JSON)
+	public Response authenticateUser(JsonLogin jsonLogin) {
 
 		try {
+			String login= jsonLogin.getUsername();
+			String password= jsonLogin.getPassword();
 			System.out.println("Hello");
 
 			System.out.println("#### login/password : " + login + "/" + password);
