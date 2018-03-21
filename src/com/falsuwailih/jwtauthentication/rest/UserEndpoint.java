@@ -1,33 +1,30 @@
 package com.falsuwailih.jwtauthentication.rest;
 
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.TextCodec;
-
-import javax.crypto.spec.SecretKeySpec;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.DatatypeConverter;
-
-import com.falsuwailih.jwtauthentication.util.JsonLogin;
-import com.falsuwailih.jwtauthentication.util.KeyGenerator;
+import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
-import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import com.falsuwailih.jwtauthentication.util.JsonLogin;
+import com.falsuwailih.jwtauthentication.util.KeyGenerator;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
  * @author Antonio Goncalves http://www.antoniogoncalves.org --
@@ -77,7 +74,7 @@ public class UserEndpoint {
 			return Response.status(UNAUTHORIZED).build();
 		}
 	}
-
+	
 	private void authenticate(String login, String password) throws Exception {
 
 	}
@@ -86,8 +83,11 @@ public class UserEndpoint {
 
 		System.out.println("This is issueToken");
 		Key key = KeyGenerator.generateKey();
-		String jwtToken = Jwts.builder().setSubject(login).setIssuer(uriInfo.getAbsolutePath().toString())
-				.setIssuedAt(new Date()).setExpiration(toDate(LocalDateTime.now().plusMinutes(15L)))
+		String jwtToken = Jwts.builder()
+				.setSubject(login)
+				.setIssuer(uriInfo.getAbsolutePath().toString())
+				.setIssuedAt(new Date())
+				.setExpiration(toDate(LocalDateTime.now().plusMinutes(15L)))
 				.signWith(SignatureAlgorithm.HS512, key)
 				.compact();
 		System.out.println("#### generating token for a key : " + jwtToken);
